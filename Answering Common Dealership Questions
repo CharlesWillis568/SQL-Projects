@@ -1,52 +1,10 @@
--- What are the 10 worst days of the month for sales?
-
-SELECT TOP 10 
-	DAY(deal_date) AS day_of_month, 
-	COUNT(*) AS number_of_sales
-FROM dealership_sales
-GROUP BY DAY(deal_date)
-ORDER BY DAY(deal_date) ASC;
-
--- What makes sell the quickest?(minimum 25 sales)
-
-SELECT 
-	make, 
-	AVG(days_on_lot) as Avg_days_on_lot
-FROM dealership_sales
-GROUP BY make
-HAVING COUNT(*) > 25
-ORDER BY AVG(days_on_lot)
-;
-
--- Which offbrands did we sell the most of?
-
-SELECT 
-	make, 
-	count(*) as number_of_sales
-FROM dealership_sales
-WHERE make != 'Ford'
-GROUP BY make
-ORDER BY count(*) DESC;
-
--- What zip codes have the highest average sell price? How much revenue was brought in from these zip codes?
-
-SELECT 
-	zip, 
-	AVG(sell_price) AS average_sell_price, 
-	SUM(sell_price) AS total_revenue
-FROM dealership_sales
-JOIN customer_data
-	ON dealership_sales.driver_id = customer_data.driver_id
-GROUP BY zip
-ORDER BY AVG(sell_price) DESC; 
-
--- Create a primary marketing area based using the zip codes that the top 80% of sales originated from.
+-- Create a primary marketing area based using the zip codes that the top 75% of sales originated from.
 
 SELECT zip,
 		CASE
 			WHEN SUM(COUNT(*)) OVER (ORDER BY COUNT(*) DESC)  
 				< 
-				(SELECT (COUNT(*)*.8)
+				(SELECT (COUNT(*)*.75)
 				FROM dealership_sales)
 			THEN 'TRUE'
 			ELSE 'FALSE'
@@ -79,7 +37,49 @@ HAVING AVG(days_on_lot)
 		(SELECT AVG(days_on_lot) FROM dealership_sales) 
 ORDER BY days_below_average DESC;
 
+--For each month display the total amount of sales on that day. Display the amount changed from the previous month.
+SELECT
+ MONTH(deal_date) AS month_of_the_year,
+ COUNT(MONTH(deal_date)) as deals_made,
+	COUNT(MONTH(deal_date)) 
+	- 
+	LAG(COUNT(MONTH(deal_date))) OVER(ORDER BY MONTH(deal_date)) AS sales_count_change
+FROM dealership_sales
+GROUP BY MONTH(deal_date);
+
+-- What zip codes have the highest average sell price? How much revenue was brought in from these zip codes?
+
+SELECT 
+	zip, 
+	AVG(sell_price) AS average_sell_price, 
+	SUM(sell_price) AS total_revenue
+FROM dealership_sales
+JOIN customer_data
+	ON dealership_sales.driver_id = customer_data.driver_id
+GROUP BY zip
+ORDER BY AVG(sell_price) DESC; 
+
+-- What are the 10 worst days of the month for sales?
+
+SELECT TOP 10 
+	DAY(deal_date) AS day_of_month, 
+	COUNT(*) AS number_of_sales
+FROM dealership_sales
+GROUP BY DAY(deal_date)
+ORDER BY DAY(deal_date) ASC;
+
+-- Which offbrands did we sell the most of?
+
+SELECT 
+	make, 
+	count(*) as number_of_sales
+FROM dealership_sales
+WHERE make != 'Ford'
+GROUP BY make
+ORDER BY count(*) DESC;
+
 -- What is the top vehicle type by zip code. Prioritize the zip codes with the most sales.
+
 SELECT 
 	zip, 
 	MAX(vehicle_type) AS most_common_type
@@ -90,16 +90,6 @@ WHERE zip IS NOT NULL
 GROUP BY zip
 ORDER BY COUNT(*);
 
-
---For each month display the total amount of sales on that day. Display the amount changed from the previous month.
-SELECT
- MONTH(deal_date) AS month_of_the_year,
- COUNT(MONTH(deal_date)) as deals_made,
-	COUNT(MONTH(deal_date)) 
-	- 
-	LAG(COUNT(MONTH(deal_date))) OVER(ORDER BY MONTH(deal_date)) AS sales_count_change
-FROM dealership_sales
-GROUP BY MONTH(deal_date);
 
  --Willis Ford Houston wants to get testimonies from satisfied families. Pull contact information for households that have 2 or more different customers living there.
 
