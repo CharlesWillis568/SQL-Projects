@@ -20,21 +20,21 @@ ORDER BY COUNT(*) DESC;
 
 SELECT 
 	make, 
-	AVG(days_on_lot) AS avg_days_on_lot,
+	ROUND(AVG(CAST(days_on_lot AS FLOAT)), 2) AS avg_days_on_lot,
 CASE 
-	WHEN AVG(days_on_lot) 
+	WHEN ROUND(AVG(CAST(days_on_lot AS FLOAT)), 2)
 		<
-		(SELECT AVG(days_on_lot) FROM dealership_sales) 
-	THEN ((AVG(days_on_lot) - 
-		(SELECT AVG(days_on_lot) FROM dealership_sales))
+		(SELECT ROUND(AVG(CAST(days_on_lot AS FLOAT)), 2) FROM dealership_sales) 
+	THEN ((ROUND(AVG(CAST(days_on_lot AS FLOAT)), 2) - 
+		(SELECT ROUND(AVG(CAST(days_on_lot AS FLOAT)), 2) FROM dealership_sales))
 		*
 		-1)
 	END AS days_below_average
 FROM dealership_sales
 GROUP BY make
-HAVING AVG(days_on_lot) 
+HAVING ROUND(AVG(CAST(days_on_lot AS FLOAT)), 2)
 		< 
-		(SELECT AVG(days_on_lot) FROM dealership_sales) 
+		(SELECT ROUND(AVG(CAST(days_on_lot AS FLOAT)), 2) FROM dealership_sales) 
 ORDER BY days_below_average DESC;
 
 --For each month display the total amount of sales on that day. Display the amount changed from the previous month.
