@@ -1,6 +1,6 @@
 -- Create a primary marketing area based using the zip codes that the top 75% of sales originated from.
 
-SELECT zip,
+SELECT zip, count(*) AS units_sold,
 		CASE
 			WHEN SUM(COUNT(*)) OVER (ORDER BY COUNT(*) DESC)  
 				< 
