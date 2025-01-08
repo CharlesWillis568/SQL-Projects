@@ -37,7 +37,7 @@ HAVING ROUND(AVG(CAST(days_on_lot AS FLOAT)), 2)
 		(SELECT ROUND(AVG(CAST(days_on_lot AS FLOAT)), 2) FROM dealership_sales) 
 ORDER BY days_below_average DESC;
 
---For each month display the total amount of sales on that day. Display the amount changed from the previous month.
+--For each month display the total amount of sales on for that month. Display the amount changed from the previous month.
 
 SELECT
  MONTH(deal_date) AS month_of_the_year,
