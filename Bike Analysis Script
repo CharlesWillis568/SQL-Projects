@@ -1,20 +1,20 @@
-WITH cte AS (
+WITH total_bike_sales AS (
 SELECT * FROM bike_share_yr_0
 UNION ALL
 SELECT * FROM bike_share_yr_1)
 
 SELECT
-dteday,
-season,
-cte.yr,
-weekday,
-hr,
-rider_type,
-riders,
-price,
-COGS,
-riders*price AS revenue,
-riders*price - COGS as profit
-FROM cte
-LEFT JOIN cost_table
-on cte.yr = cost_table.yr
+t.dteday,
+t.season,
+t.yr,
+t.weekday,
+t.hr,
+t.rider_type,
+t.riders,
+c.price,
+c.COGS,
+t.riders*c.price AS revenue,
+t.riders*c.price - c.COGS as profit
+FROM total_bike_sales t
+LEFT JOIN cost_table c
+ON t.yr = cost_table.yr;
